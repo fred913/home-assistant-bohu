@@ -20,7 +20,8 @@
     },
     "error": {
       "invalid_url": "Enter an HTTP(S) address with host and optional port, without a path, credentials, query or fragment.",
-      "invalid_name": "Enter a device name of 1–100 characters."
+      "invalid_name": "Enter a device name of 1–100 characters.",
+      "url_too_long": "BH6 saves at most 63 bytes for its upload URL. Use the server IP or a shorter hostname."
     }
   },
   "options": {
@@ -44,7 +45,8 @@
       }
     },
     "error": {
-      "invalid_url": "Enter an HTTP(S) address with host and optional port, without a path, credentials, query or fragment."
+      "invalid_url": "Enter an HTTP(S) address with host and optional port, without a path, credentials, query or fragment.",
+      "url_too_long": "BH6 saves at most 63 bytes for its upload URL. Use the server IP or a shorter hostname."
     }
   },
   "selector": {

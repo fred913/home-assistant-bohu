@@ -24,7 +24,12 @@ from .const import (
     DEFAULT_TIMEOUT,
     DOMAIN,
     GAS_UNITS,
+    MAX_UPLOAD_URL_BYTES,
 )
+
+
+class UploadURLTooLong(vol.Invalid):
+    """The BH6 firmware would silently truncate this upload URL."""
 
 
 def validate_base_url(value: str) -> str:
@@ -47,7 +52,10 @@ def validate_base_url(value: str) -> str:
         or (port is not None and port == 0)
     ):
         raise vol.Invalid("Enter the Home Assistant origin, including its port")
-    return value.rstrip("/")
+    value = value.rstrip("/")
+    if len(upload_url(value, "x" * 22).encode("utf-8")) > MAX_UPLOAD_URL_BYTES:
+        raise UploadURLTooLong("The complete upload URL must fit in 63 bytes")
+    return value
 
 
 def upload_url(base_url: str, hook_id: str) -> str:
@@ -85,7 +93,7 @@ def settings_schema(values: dict) -> vol.Schema:
 class BohuConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Name the device, then display its URL before finishing setup."""
 
-    VERSION = 1
+    VERSION = 2
 
     async def async_step_user(self, user_input=None):
         errors = {}
@@ -95,11 +103,13 @@ class BohuConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors[CONF_NAME] = "invalid_name"
             try:
                 base_url = validate_base_url(user_input[CONF_BASE_URL])
+            except UploadURLTooLong:
+                errors[CONF_BASE_URL] = "url_too_long"
             except vol.Invalid:
                 errors[CONF_BASE_URL] = "invalid_url"
             if not errors:
                 self._name = name
-                self._hook_id = secrets.token_hex(16)
+                self._hook_id = secrets.token_urlsafe(16)
                 self._options = {
                     CONF_BASE_URL: base_url,
                     CONF_GAS_UNIT: DEFAULT_GAS_UNIT,
@@ -151,6 +161,8 @@ class BohuOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             try:
                 base_url = validate_base_url(user_input[CONF_BASE_URL])
+            except UploadURLTooLong:
+                errors[CONF_BASE_URL] = "url_too_long"
             except vol.Invalid:
                 errors[CONF_BASE_URL] = "invalid_url"
             if not errors:

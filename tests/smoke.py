@@ -140,6 +140,8 @@ async def run(
                 )
                 assert finish["step_id"] == "finish", finish
                 url = finish["description_placeholders"]["url"]
+                assert len(url.encode()) <= 63, url
+                assert len(urlsplit(url).path.rsplit("/", 1)[1]) == 22
                 result = await request("POST", flow_path, json={})
                 assert result["type"] == "create_entry", result
                 entry_id = result["result"]["entry_id"]

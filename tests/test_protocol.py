@@ -10,7 +10,12 @@ import homeassistant  # noqa: F401 - initializes HA's voluptuous compatibility l
 # isort: split
 
 import voluptuous as vol
-from custom_components.bohu.config_flow import suggested_base_url, validate_base_url
+from custom_components.bohu.config_flow import (
+    UploadURLTooLong,
+    suggested_base_url,
+    upload_url,
+    validate_base_url,
+)
 from custom_components.bohu.protocol import parse_update
 from homeassistant.helpers.network import NoURLAvailableError
 
@@ -27,6 +32,13 @@ SAMPLE = {
 
 
 class ProtocolTests(unittest.TestCase):
+    def test_bh6_url_buffer_limit(self):
+        base = "http://node.example.net:8123"
+        valid = validate_base_url(base)
+        self.assertEqual(len(upload_url(valid, "x" * 22).encode()), 63)
+        with self.assertRaises(UploadURLTooLong):
+            validate_base_url("http://nodes.example.net:8123")
+
     def test_configured_ha_address_precedes_detected_container_address(self):
         hass = SimpleNamespace(
             config=SimpleNamespace(
