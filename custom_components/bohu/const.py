@@ -7,6 +7,7 @@ CONF_GAS_UNIT = "gas_unit"
 CONF_TIMEOUT = "timeout"
 CONF_WEBHOOK_ID = "webhook_id"
 DEFAULT_TIMEOUT = 300
+DEFAULT_GAS_UNIT = "mg/m³"
 GAS_UNITS = ("unknown", "mg/m³", "µg/m³", "ppm", "ppb")
 MAX_BODY_BYTES = 4096
 MEASUREMENTS = ("T", "H", "HCHO", "VOC", "C6H6")

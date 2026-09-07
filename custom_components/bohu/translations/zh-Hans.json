@@ -10,7 +10,7 @@
           "base_url": "Home Assistant 地址"
         },
         "data_description": {
-          "base_url": "填写传感器能访问的地址，例如 http://192.168.1.10:8123。Docker 部署请填写宿主机的局域网地址和映射端口，不要填写容器地址。"
+          "base_url": "自动读取 HA 设置中的本地网络地址，其次是互联网地址。通常保留即可；若传感器无法访问，可改为宿主机局域网地址及映射端口。"
         }
       },
       "finish": {
@@ -34,7 +34,7 @@
           "timeout": "离线超时（秒）"
         },
         "data_description": {
-          "gas_unit": "按设备屏幕上 HCHO、VOC、C6H6 的单位选择，数值不会换算。尚不清楚时保留“未确认”。",
+          "gas_unit": "默认 mg/m³，已核对 BH6 屏幕上 HCHO、TVOC、C6H6 的单位。仅当设备单位不同时更改，数值不会换算。",
           "timeout": "10–86400 秒，应大于设备上报间隔。无效报文不会延长在线时间。"
         }
       },
@@ -68,7 +68,7 @@
         "name": "甲醛"
       },
       "voc": {
-        "name": "VOC"
+        "name": "TVOC"
       },
       "benzene": {
         "name": "苯"

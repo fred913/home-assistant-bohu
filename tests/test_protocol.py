@@ -2,14 +2,17 @@
 
 import json
 import unittest
+from types import SimpleNamespace
+from unittest.mock import patch
 
 import homeassistant  # noqa: F401 - initializes HA's voluptuous compatibility layer
 
 # isort: split
 
 import voluptuous as vol
-from custom_components.bohu.config_flow import validate_base_url
+from custom_components.bohu.config_flow import suggested_base_url, validate_base_url
 from custom_components.bohu.protocol import parse_update
+from homeassistant.helpers.network import NoURLAvailableError
 
 SAMPLE = {
     "method": "update",
@@ -24,6 +27,29 @@ SAMPLE = {
 
 
 class ProtocolTests(unittest.TestCase):
+    def test_configured_ha_address_precedes_detected_container_address(self):
+        hass = SimpleNamespace(
+            config=SimpleNamespace(
+                internal_url="http://192.168.1.10:9007",
+                external_url="https://ha.example.com",
+            )
+        )
+        with patch(
+            "custom_components.bohu.config_flow.get_url",
+            return_value="http://172.17.0.2:8123",
+        ) as detect:
+            self.assertEqual(suggested_base_url(hass), "http://192.168.1.10:9007")
+            hass.config.internal_url = None
+            self.assertEqual(suggested_base_url(hass), "https://ha.example.com")
+            detect.assert_not_called()
+            hass.config.external_url = None
+            self.assertEqual(suggested_base_url(hass), "http://172.17.0.2:8123")
+        with patch(
+            "custom_components.bohu.config_flow.get_url",
+            side_effect=NoURLAvailableError,
+        ):
+            self.assertEqual(suggested_base_url(hass), "")
+
     def test_observed_format(self):
         result = parse_update(json.dumps(SAMPLE).encode())
         self.assertEqual(result.did, "demo0001")

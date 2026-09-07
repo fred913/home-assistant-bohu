@@ -126,6 +126,10 @@ async def run(
                     json={"handler": "bohu", "show_advanced_options": False},
                 )
                 assert flow["step_id"] == "user", flow
+                address_field = next(
+                    f for f in flow["data_schema"] if f["name"] == "base_url"
+                )
+                assert address_field["default"] == config["internal_url"], address_field
                 flow_path = "/api/config/config_entries/flow/" + flow["flow_id"]
                 invalid = await request(
                     "POST", flow_path, json={"name": name, "base_url": "http://ha/api"}
@@ -219,7 +223,9 @@ async def run(
                 result = await request("GET", "/api/states/" + entities[key])
                 assert float(result["state"]) == float(payload[key]), result
                 if key in ("HCHO", "VOC", "C6H6"):
-                    assert "unit_of_measurement" not in result["attributes"], result
+                    assert result["attributes"]["unit_of_measurement"] == "mg/m³", (
+                        result
+                    )
             assert (await options(entry_id))["description_placeholders"][
                 "did"
             ] == payload["did"]
@@ -287,7 +293,7 @@ async def run(
             finish = await request(
                 "POST",
                 opt_path,
-                json={"base_url": base_url, "gas_unit": "mg/m³", "timeout": 10},
+                json={"base_url": base_url, "gas_unit": "µg/m³", "timeout": 10},
             )
             assert urlsplit(finish["description_placeholders"]["url"]).path == path
             await request("POST", opt_path, json={})
@@ -299,7 +305,7 @@ async def run(
             assert await entities_for(entry_id) == entities
             await request("POST", path, data=body, headers=headers)
             gas = await request("GET", "/api/states/" + entities["HCHO"])
-            assert gas["attributes"]["unit_of_measurement"] == "mg/m³"
+            assert gas["attributes"]["unit_of_measurement"] == "µg/m³"
             assert float(gas["state"]) == float(payload["HCHO"])
             await asyncio.sleep(6)
             await request("POST", path, data=b"{}", headers=headers, expected=400)

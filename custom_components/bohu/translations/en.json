@@ -10,7 +10,7 @@
           "base_url": "Home Assistant address"
         },
         "data_description": {
-          "base_url": "Address reachable by the sensor, e.g. http://192.168.1.10:8123. For Docker, use the host LAN address and published port, not the container address."
+          "base_url": "Automatically filled from Home Assistant settings: local URL first, then external URL. Keep it if reachable by the sensor, or change it to the host LAN address and published port."
         }
       },
       "finish": {
@@ -34,7 +34,7 @@
           "timeout": "Offline timeout (seconds)"
         },
         "data_description": {
-          "gas_unit": "Choose the unit shown by the device for HCHO, VOC and C6H6. Values are not converted. Leave unconfirmed if unknown.",
+          "gas_unit": "Defaults to mg/m³, confirmed on the BH6 display for HCHO, TVOC and C6H6. Change only to match your device. Values are not converted.",
           "timeout": "10–86400 seconds. Choose longer than the device's upload interval. Invalid reports do not reset this timer."
         }
       },
@@ -68,7 +68,7 @@
         "name": "Formaldehyde"
       },
       "voc": {
-        "name": "VOC"
+        "name": "TVOC"
       },
       "benzene": {
         "name": "Benzene"

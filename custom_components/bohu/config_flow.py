@@ -20,6 +20,7 @@ from .const import (
     CONF_GAS_UNIT,
     CONF_TIMEOUT,
     CONF_WEBHOOK_ID,
+    DEFAULT_GAS_UNIT,
     DEFAULT_TIMEOUT,
     DOMAIN,
     GAS_UNITS,
@@ -51,6 +52,16 @@ def validate_base_url(value: str) -> str:
 
 def upload_url(base_url: str, hook_id: str) -> str:
     return f"{base_url}/api/webhook/{hook_id}"
+
+
+def suggested_base_url(hass) -> str:
+    """Prefer explicitly configured addresses over an auto-detected container IP."""
+    if configured := hass.config.internal_url or hass.config.external_url:
+        return configured
+    try:
+        return get_url(hass, allow_cloud=False, prefer_external=False)
+    except NoURLAvailableError:
+        return ""
 
 
 def settings_schema(values: dict) -> vol.Schema:
@@ -91,16 +102,15 @@ class BohuConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._hook_id = secrets.token_hex(16)
                 self._options = {
                     CONF_BASE_URL: base_url,
-                    CONF_GAS_UNIT: "unknown",
+                    CONF_GAS_UNIT: DEFAULT_GAS_UNIT,
                     CONF_TIMEOUT: DEFAULT_TIMEOUT,
                 }
                 return await self.async_step_finish()
 
-        try:
-            suggested_url = get_url(self.hass, allow_cloud=False, prefer_external=False)
-        except NoURLAvailableError:
-            suggested_url = ""
-        values = user_input or {CONF_NAME: "Bohu", CONF_BASE_URL: suggested_url}
+        values = user_input or {
+            CONF_NAME: "Bohu",
+            CONF_BASE_URL: suggested_base_url(self.hass),
+        }
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
