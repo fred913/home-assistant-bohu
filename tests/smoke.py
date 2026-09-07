@@ -293,7 +293,7 @@ async def run(
             finish = await request(
                 "POST",
                 opt_path,
-                json={"base_url": base_url, "gas_unit": "µg/m³", "timeout": 10},
+                json={"base_url": base_url, "gas_unit": "μg/m³", "timeout": 10},
             )
             assert urlsplit(finish["description_placeholders"]["url"]).path == path
             await request("POST", opt_path, json={})
@@ -305,7 +305,7 @@ async def run(
             assert await entities_for(entry_id) == entities
             await request("POST", path, data=body, headers=headers)
             gas = await request("GET", "/api/states/" + entities["HCHO"])
-            assert gas["attributes"]["unit_of_measurement"] == "µg/m³"
+            assert gas["attributes"]["unit_of_measurement"] == "μg/m³"
             assert float(gas["state"]) == float(payload["HCHO"])
             await asyncio.sleep(6)
             await request("POST", path, data=b"{}", headers=headers, expected=400)
