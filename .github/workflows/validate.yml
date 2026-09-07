@@ -1,0 +1,68 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Protocol tests
+        run: |
+          docker run --rm --entrypoint python \
+            -v "$PWD:/repo:ro" -w /repo \
+            ghcr.io/home-assistant/home-assistant:2026.9.1 \
+            -m unittest discover -s tests -v
+      - name: Start isolated Home Assistant
+        run: |
+          mkdir -p "$RUNNER_TEMP/bohu-ha"
+          cp tests/configuration.yaml "$RUNNER_TEMP/bohu-ha/"
+          docker run -d --name bohu-ha-test \
+            -p 127.0.0.1:19007:8123 \
+            -v "$RUNNER_TEMP/bohu-ha:/config" \
+            -v "$PWD/custom_components:/config/custom_components:ro" \
+            -v "$PWD/tests:/tests:ro" \
+            ghcr.io/home-assistant/home-assistant:2026.9.1
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:19007/ > /dev/null; then exit 0; fi
+            sleep 2
+          done
+          docker logs bohu-ha-test
+          exit 1
+      - name: Integration smoke test
+        run: docker exec bohu-ha-test python /tests/smoke.py --state /config/test-auth.json
+      - name: Restart persistence test
+        run: |
+          docker restart --time 60 bohu-ha-test
+          ready=false
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:19007/ > /dev/null; then ready=true; break; fi
+            sleep 2
+          done
+          test "$ready" = true
+          docker exec bohu-ha-test python /tests/smoke.py --state /config/test-auth.json --restart
+      - name: Container logs and cleanup
+        if: always()
+        run: |
+          docker logs bohu-ha-test || true
+          docker rm -f bohu-ha-test || true
+
+  hassfest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: home-assistant/actions/hassfest@master
+
+  hacs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: hacs/action@main
+        with:
+          category: integration

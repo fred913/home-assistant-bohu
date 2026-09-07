@@ -1,0 +1,12 @@
+homeassistant:
+  name: Bohu Test
+  latitude: 0
+  longitude: 0
+  elevation: 0
+  time_zone: Asia/Shanghai
+  unit_system: metric
+  internal_url: http://192.0.2.10:8123
+http:
+frontend:
+api:
+config:

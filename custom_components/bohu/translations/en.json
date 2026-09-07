@@ -1,0 +1,83 @@
+{
+  "title": "Bohu Air Quality",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Create a Bohu device",
+        "description": "Create one device and upload URL. No device ID is needed: the first valid report binds it automatically.",
+        "data": {
+          "name": "Device name",
+          "base_url": "Home Assistant address"
+        },
+        "data_description": {
+          "base_url": "Address reachable by the sensor, e.g. http://192.168.1.10:8123. For Docker, use the host LAN address and published port, not the container address."
+        }
+      },
+      "finish": {
+        "title": "Copy the upload URL",
+        "description": "Your device's upload URL:\n\n```text\n{url}\n```\n\n**Submit to activate this URL**, then paste it into the sensor's custom upload address. Find it again under the integration's Configure button. Keep this URL private."
+      }
+    },
+    "error": {
+      "invalid_url": "Enter an HTTP(S) address with host and optional port, without a path, credentials, query or fragment.",
+      "invalid_name": "Enter a device name of 1–100 characters."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Upload URL and settings",
+        "description": "Current upload URL:\n\n```text\n{url}\n```\n\nBound device ID: {did}\n\nThe next screen shows the URL after your changes. Changing the displayed HA address does not change HA's listener or Docker's port mapping.",
+        "data": {
+          "base_url": "Home Assistant address",
+          "gas_unit": "Gas concentration unit",
+          "timeout": "Offline timeout (seconds)"
+        },
+        "data_description": {
+          "gas_unit": "Choose the unit shown by the device for HCHO, VOC and C6H6. Values are not converted. Leave unconfirmed if unknown.",
+          "timeout": "10–86400 seconds. Choose longer than the device's upload interval. Invalid reports do not reset this timer."
+        }
+      },
+      "finish": {
+        "title": "Copy the upload URL",
+        "description": "Upload URL:\n\n```text\n{url}\n```\n\nSubmit to save. If the address changed, update the sensor too. Measurements wait for the next valid report after settings reload."
+      }
+    },
+    "error": {
+      "invalid_url": "Enter an HTTP(S) address with host and optional port, without a path, credentials, query or fragment."
+    }
+  },
+  "selector": {
+    "gas_unit": {
+      "options": {
+        "unknown": "Unconfirmed (no unit)",
+        "mg/m³": "mg/m³",
+        "µg/m³": "µg/m³",
+        "ppm": "ppm",
+        "ppb": "ppb"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "temperature": {
+        "name": "Temperature"
+      },
+      "humidity": {
+        "name": "Humidity"
+      },
+      "formaldehyde": {
+        "name": "Formaldehyde"
+      },
+      "voc": {
+        "name": "VOC"
+      },
+      "benzene": {
+        "name": "Benzene"
+      },
+      "last_seen": {
+        "name": "Last report"
+      }
+    }
+  }
+}

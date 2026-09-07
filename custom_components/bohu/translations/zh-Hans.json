@@ -1,0 +1,83 @@
+{
+  "title": "伯虎空气质量",
+  "config": {
+    "step": {
+      "user": {
+        "title": "创建伯虎设备",
+        "description": "创建一个设备及其专属上报 URL。无需填写设备 ID，收到首条有效上报后会自动绑定。",
+        "data": {
+          "name": "设备名称",
+          "base_url": "Home Assistant 地址"
+        },
+        "data_description": {
+          "base_url": "填写传感器能访问的地址，例如 http://192.168.1.10:8123。Docker 部署请填写宿主机的局域网地址和映射端口，不要填写容器地址。"
+        }
+      },
+      "finish": {
+        "title": "复制上报 URL",
+        "description": "此设备的上报 URL：\n\n```text\n{url}\n```\n\n**点击提交后 URL 才会生效**，然后将它填入传感器的自定义上传地址。以后也可在此集成的“配置”中再次复制。请勿公开此 URL。"
+      }
+    },
+    "error": {
+      "invalid_url": "请填写带主机名及可选端口的 HTTP(S) 地址，不要包含路径、用户名、密码、查询参数或片段。",
+      "invalid_name": "请填写 1–100 字符的设备名称。"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "上报 URL 与设置",
+        "description": "当前上报 URL：\n\n```text\n{url}\n```\n\n已绑定设备 ID：{did}\n\n下一步会显示修改后的 URL。修改此处的 HA 地址不会更改 HA 的监听地址或 Docker 端口映射。",
+        "data": {
+          "base_url": "Home Assistant 地址",
+          "gas_unit": "气体浓度单位",
+          "timeout": "离线超时（秒）"
+        },
+        "data_description": {
+          "gas_unit": "按设备屏幕上 HCHO、VOC、C6H6 的单位选择，数值不会换算。尚不清楚时保留“未确认”。",
+          "timeout": "10–86400 秒，应大于设备上报间隔。无效报文不会延长在线时间。"
+        }
+      },
+      "finish": {
+        "title": "复制上报 URL",
+        "description": "上报 URL：\n\n```text\n{url}\n```\n\n点击提交保存。若地址改变，也请更新传感器中的配置。设置重载后，读数将在下一条有效上报到达时恢复。"
+      }
+    },
+    "error": {
+      "invalid_url": "请填写带主机名及可选端口的 HTTP(S) 地址，不要包含路径、用户名、密码、查询参数或片段。"
+    }
+  },
+  "selector": {
+    "gas_unit": {
+      "options": {
+        "unknown": "未确认（不标注单位）",
+        "mg/m³": "mg/m³",
+        "µg/m³": "µg/m³",
+        "ppm": "ppm",
+        "ppb": "ppb"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "temperature": {
+        "name": "温度"
+      },
+      "humidity": {
+        "name": "湿度"
+      },
+      "formaldehyde": {
+        "name": "甲醛"
+      },
+      "voc": {
+        "name": "VOC"
+      },
+      "benzene": {
+        "name": "苯"
+      },
+      "last_seen": {
+        "name": "最后上报"
+      }
+    }
+  }
+}
