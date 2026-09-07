@@ -51,8 +51,6 @@
     "gas_unit": {
       "options": {
         "unknown": "Unconfirmed (no unit)",
-        "mg/m³": "mg/m³",
-        "µg/m³": "µg/m³",
         "ppm": "ppm",
         "ppb": "ppb"
       }
